@@ -1,23 +1,18 @@
-from json import dumps
+from pprint import pprint
 
-from requests_tools import get_response
-from datetime_tools import get_date_offset_by_days
-
-
-def fetch_hh_vacancies(professional_role, area, date_from=None):
-
-    url = 'https://api.hh.ru/vacancies'
-    params = {
-        'professional_role': professional_role,
-        'area': area,
-        'date_from': get_date_offset_by_days(date_from)
-    }
-    return dumps(get_response(url, params).json(), indent=4)
+from hh_api_tools import (fetch_hh_vacancies,
+                          get_vacancy_count_by_text,
+                          get_vacancy_count_by_profession_plus_keyword)
+from constants import popular_programming_languages
 
 
 def main():
-    print(fetch_hh_vacancies(professional_role=96, area=1, date_from=30))
-    print(fetch_hh_vacancies(professional_role=96, area=1))
+    # print(fetch_hh_vacancies(professional_role=96, area=1, date_from=30))
+    # print(fetch_hh_vacancies(professional_role=96, area=1))
+    print(get_vacancy_count_by_text(text='Программист Python'))
+    pprint(get_vacancy_count_by_profession_plus_keyword(
+        profession='Программист',
+        profession_keywords=popular_programming_languages))
 
 
 if __name__ == '__main__':
