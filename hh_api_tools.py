@@ -25,3 +25,8 @@ def get_vacancy_count_by_profession_plus_keyword(profession,
         stats[keyword] = get_vacancy_count_by_text(
             text=f'{profession} {keyword}')
     return stats
+
+
+def get_vacancy_salary_statictics(text):
+    vacancies = fetch_hh_vacancies(text=text).get('items', 0)
+    return [vacancy.get('salary') for vacancy in vacancies]
