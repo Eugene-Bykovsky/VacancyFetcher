@@ -1,3 +1,6 @@
+import statistics
+from collections import OrderedDict
+
 from requests_tools import get_response
 from datetime_tools import get_date_offset_by_days
 
@@ -24,6 +27,25 @@ def get_vacancy_count_by_profession_plus_keyword(profession,
     for keyword in profession_keywords:
         stats[keyword] = get_vacancy_count_by_text(
             text=f'{profession} {keyword}')
+    return stats
+
+
+def get_vacancy_salary_statictics_by_profession_plus_keyword(profession,
+                                                             profession_keywords):
+    stats = {}
+
+    for keyword in profession_keywords:
+        salaries = [predict_rub_salary(python_vacancy_salary)
+                    for python_vacancy_salary in get_vacancy_salary_statictics(
+                text=f'{profession} {keyword}')
+                    if predict_rub_salary(python_vacancy_salary) is not None]
+        stats[keyword] = {
+            "vacancies_found": get_vacancy_count_by_text(
+                text=f'{profession} {keyword}'),
+            "vacancies_processed": len(salaries),
+            "average_salary": int(
+                statistics.mean(salaries)) if salaries else 0,
+        }
     return stats
 
 
