@@ -6,13 +6,20 @@ from requests import HTTPError
 from requests_tools import get_response
 
 
-def fetch_hh_all_vacancies(**kwargs):
+def fetch_hh_vacancies(**kwargs):
     url = 'https://api.hh.ru/vacancies'
     params = {**kwargs}
     for page in count():
         params['page'] = page
         try:
             response = get_response(url, params=params)
+            page_payload = response.json()
+            print(f"Обработка страницы {page} из {page_payload['pages'] - 1}")
+
+            yield page_payload
+            if page >= page_payload['pages'] - 1:
+                break
+            time.sleep(1)
         except HTTPError as http_err:
             if http_err.response.status_code == 502:
                 print(
@@ -28,14 +35,6 @@ def fetch_hh_all_vacancies(**kwargs):
             print(f"Ошибка: {err}")
             break
 
-        page_payload = response.json()
-        print(f"Обработка страницы {page} из {page_payload['pages'] - 1}")
-
-        yield page_payload
-        if page >= page_payload['pages'] - 1:
-            break
-        time.sleep(1)
-
 
 def get_hh_vacancy_salary_statictics(profession,
                                      profession_keywords):
@@ -43,7 +42,7 @@ def get_hh_vacancy_salary_statictics(profession,
 
     for keyword in profession_keywords:
         all_pages = list(
-            fetch_hh_all_vacancies(text=f'{profession} {keyword}'))
+            fetch_hh_vacancies(text=f'{profession} {keyword}'))
 
         vacancies_found = sum(page.get('found', 0) for page in all_pages)
         salaries = [
