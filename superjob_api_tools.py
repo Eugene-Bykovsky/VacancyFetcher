@@ -17,8 +17,10 @@ def fetch_superjob_vacancies(**kwargs):
         vacancies_data = data.get('objects', [])
 
         vacancies = [
-            f"{vacancy.get('profession', 'Не указана')}, {vacancy['town']['title']}"
-            for vacancy in vacancies_data if vacancy['town']['title'] == 'Москва'
+            f"{vacancy.get('profession', 'Не указана')}, {vacancy.get('town', {}).get('title', 'Город не указан')}"
+            for vacancy in vacancies_data
+            if 'catalogues' in vacancy and vacancy['catalogues'] and
+               vacancy['catalogues'][0].get('id') == 33
         ]
 
         return vacancies
