@@ -9,7 +9,7 @@ def main():
     # pprint(get_hh_vacancy_salary_statictics(
     #     profession='Программист',
     #     profession_keywords=popular_programming_languages))
-    pprint(fetch_superjob_vacancies())
+    pprint(fetch_superjob_vacancies(keyword='программист', town=4, count=10))
 
 
 if __name__ == '__main__':

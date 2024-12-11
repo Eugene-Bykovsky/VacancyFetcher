@@ -15,8 +15,12 @@ def fetch_superjob_vacancies(**kwargs):
     try:
         data = get_response(url, params=params, headers=headers).json()
         vacancies_data = data.get('objects', [])
-        vacancies = [vacancy.get('profession', 'Не указана') for
-                     vacancy in vacancies_data]
+
+        vacancies = [
+            f"{vacancy.get('profession', 'Не указана')}, {vacancy['town']['title']}"
+            for vacancy in vacancies_data if vacancy['town']['title'] == 'Москва'
+        ]
+
         return vacancies
     except HTTPError as http_err:
         if http_err.response.status_code == 502:
