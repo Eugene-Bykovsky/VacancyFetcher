@@ -1,6 +1,7 @@
 from requests import HTTPError
 
 from requests_tools import get_response
+from salary_utils import predict_salary
 
 
 def fetch_superjob_vacancies(**kwargs):
@@ -17,7 +18,9 @@ def fetch_superjob_vacancies(**kwargs):
         vacancies_data = data.get('objects', [])
 
         vacancies = [
-            f"{vacancy.get('profession', 'Не указана')}, {vacancy.get('town', {}).get('title', 'Город не указан')}"
+            f"{vacancy.get('profession', 'Не указана')}, "
+            f"{vacancy.get('town', {}).get('title', 'Город не указан')}, "
+            f"{predict_rub_salary_sj(vacancy)}"
             for vacancy in vacancies_data
             if 'catalogues' in vacancy and vacancy['catalogues'] and
                vacancy['catalogues'][0].get('id') == 33
@@ -33,3 +36,12 @@ def fetch_superjob_vacancies(**kwargs):
             print(f"HTTP ошибка: {http_err}")
     except Exception as err:
         print(f"Ошибка: {err}")
+
+
+def predict_rub_salary_sj(vacancy):
+    if vacancy.get('currency') != 'rub':
+        return None
+
+    predicted_salary = int(predict_salary(vacancy.get('payment_from'),
+                                          vacancy.get('payment_to')))
+    return predicted_salary if predicted_salary != 0 else None

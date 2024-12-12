@@ -4,6 +4,7 @@ from itertools import count
 from requests import HTTPError
 
 from requests_tools import get_response
+from salary_utils import predict_salary
 
 
 def fetch_hh_vacancies(**kwargs):
@@ -62,16 +63,9 @@ def get_hh_vacancy_salary_statictics(profession,
     return stats
 
 
-def predict_rub_salary(salary):
-    if salary is None:
+def predict_rub_salary_hh(vacancy):
+    salary = vacancy.get('salary')
+    if salary is None or salary.get('currency') != 'RUR':
         return None
-    salary_from = salary.get('from')
-    salary_to = salary.get('to')
-    if salary['currency'] != 'RUR':
-        return None
-    if salary_from is None and salary_to is not None:
-        return salary_to * 0.8
-    elif salary_from is not None and salary_to is None:
-        return salary_from * 1.2
-    else:
-        return (salary_from + salary_to) / 2
+
+    return int(predict_salary(salary.get('from'), salary.get('to')))
