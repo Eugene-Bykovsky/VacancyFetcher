@@ -1,15 +1,45 @@
-from pprint import pprint
+from terminaltables import AsciiTable
 
-from hh_api_tools import get_hh_vacancy_salary_statictics
 from constants import popular_programming_languages
-from superjob_api_tools import fetch_superjob_vacancies
+from hh_api_tools import get_hh_vacancy_salary_statictics
+from superjob_api_tools import get_superjob_salary_statictics
+
+
+def print_salary_statistics_table(stats):
+    table_data = [
+        ['Язык программирования', 'Вакансий найдено', 'Вакансий обработано',
+         'Средняя зарплата']
+    ]
+
+    for keyword, data in stats.items():
+        table_data.append([
+            keyword,
+            data['vacancies_found'],
+            data['vacancies_processed'],
+            data['average_salary']
+        ])
+
+    table = AsciiTable(table_data)
+    print(table.table)
 
 
 def main():
-    # pprint(get_hh_vacancy_salary_statictics(
-    #     profession='Программист',
-    #     profession_keywords=popular_programming_languages))
-    pprint(fetch_superjob_vacancies(keyword='программист', town=4, count=10))
+    print('Вакансии c hh.ru программистов по топовым языкам в Москве за '
+          'последний месяц.')
+    print_salary_statistics_table(get_hh_vacancy_salary_statictics(
+        profession='Программист',
+        profession_keywords=popular_programming_languages,
+        professional_role=96,
+        area=1,
+        date_from=30))
+    print('Вакансии c superjob.ru программистов по топовым языкам в Москве '
+          'за последний месяц.')
+    print_salary_statistics_table(get_superjob_salary_statictics(
+        profession='Программист',
+        profession_keywords=popular_programming_languages,
+        city=4,
+        catalogues=48,
+        date_published=30))
 
 
 if __name__ == '__main__':
