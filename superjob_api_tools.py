@@ -1,16 +1,20 @@
 from requests import HTTPError
+from environs import Env
 
 from requests_tools import get_response
 from salary_utils import predict_salary
+
+env = Env()
+env.read_env()
+
+API_KEY_SUPERJOB = env("API_KEY_SUPERJOB")
 
 
 def fetch_superjob_vacancies(**kwargs):
     url = 'https://api.superjob.ru/2.0/vacancies/'
     params = {**kwargs}
     headers = {
-        "X-Api-App-Id": "v3.r.138766998"
-                        ".691d125ea8a181380274846268a33cd9267977a8"
-                        ".78ea7c7e3d9be6b0d8ef22ebf4ed9526126c13fd "
+        "X-Api-App-Id": API_KEY_SUPERJOB
     }
 
     try:
