@@ -63,7 +63,7 @@ def predict_rub_salary_sj(vacancy):
     if not predicted_salary:
         return None
 
-    return int(predicted_salary) if predicted_salary != 0 else None
+    return int(predicted_salary) if predicted_salary else None
 
 
 def get_superjob_salary_statictics(api_key, profession,
