@@ -1,4 +1,5 @@
 from terminaltables import AsciiTable
+from environs import Env
 
 from constants import popular_programming_languages
 from hh_api_tools import get_hh_vacancy_salary_statictics
@@ -24,6 +25,11 @@ def print_salary_statistics_table(stats):
 
 
 def main():
+    env = Env()
+    env.read_env()
+
+    api_key_superjob = env("API_KEY_SUPERJOB")
+
     print('Вакансии c hh.ru программистов по топовым языкам в Москве за '
           'последний месяц.')
     print_salary_statistics_table(get_hh_vacancy_salary_statictics(
@@ -35,6 +41,7 @@ def main():
     print('Вакансии c superjob.ru программистов по топовым языкам в Москве '
           'за последний месяц.')
     print_salary_statistics_table(get_superjob_salary_statictics(
+        api_key= api_key_superjob,
         profession='Программист',
         profession_keywords=popular_programming_languages,
         city=4,
