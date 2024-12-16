@@ -21,41 +21,55 @@ def fetch_superjob_vacancies(date_from=None, **kwargs):
         "X-Api-App-Id": API_KEY_SUPERJOB
     }
     params = {**kwargs,
-              'date_published': get_date_offset_by_days(date_from) if date_from else None}
+              'date_published': get_date_offset_by_days(
+                  date_from) if date_from else None}
     for page in count():
         params["page"] = page
         try:
             response = get_response(url, params=params, headers=headers)
             response.raise_for_status()
-            page_payload = response.json()
-
-            total_vacancies = page_payload.get('total', 0)
-            count_per_page = params.get('count', 20)
-            total_pages = ((total_vacancies + count_per_page - 1)
-                           // count_per_page)
-            print(f"Обработка страницы {page + 1} из {total_pages}")
-
-            yield page_payload
-            time.sleep(1)
-            if not page_payload.get('more', False):
-                break
-
-            time.sleep(1)
         except HTTPError as http_err:
             print(f"HTTP ошибка: {http_err}")
             break
-        except Exception as err:
-            print(f"Ошибка: {err}")
+        except ConnectionError as conn_err:
+            print(f"Ошибка соединения: {conn_err}. Повтор через 1 секунду.")
+            time.sleep(1)
+            continue
+        except TimeoutError as timeout_err:
+            print(f"Ошибка тайм-аута: {timeout_err}. Повтор через 1 секунду.")
+            time.sleep(1)
+            continue
+
+        try:
+            page_payload = response.json()
+        except ValueError as json_err:
+            print(f"Ошибка парсинга JSON: {json_err}. Пропускаем страницу.")
+            continue
+
+        total_vacancies = page_payload.get('total', 0)
+        count_per_page = params.get('count', 20)
+        total_pages = (
+                    (total_vacancies + count_per_page - 1) // count_per_page)
+        print(f"Обработка страницы {page + 1} из {total_pages}")
+
+        yield page_payload
+
+        if not page_payload.get('more', False):
             break
+
+        time.sleep(1)
 
 
 def predict_rub_salary_sj(vacancy):
     if vacancy.get('currency') != 'rub':
         return None
 
-    predicted_salary = int(predict_salary(vacancy.get('payment_from'),
-                                          vacancy.get('payment_to')))
-    return predicted_salary if predicted_salary != 0 else None
+    predicted_salary = predict_salary(vacancy.get('payment_from'),
+                                      vacancy.get('payment_to'))
+    if not predicted_salary:
+        return None
+
+    return int(predicted_salary) if predicted_salary != 0 else None
 
 
 def get_superjob_salary_statictics(profession,

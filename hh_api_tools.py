@@ -18,26 +18,37 @@ def fetch_hh_vacancies(date_from=None, **kwargs):
         params['page'] = page
         try:
             response = get_response(url, params=params)
-            page_payload = response.json()
-            print(f"Обработка страницы {page} из {page_payload['pages'] - 1}")
-            yield page_payload
-            if page >= page_payload['pages'] - 1:
-                break
-            time.sleep(1)
         except HTTPError as http_err:
             if http_err.response.status_code == 502:
-                print(
-                    f"Ошибка 502 на странице {page}. Пропускаем страницу.")
+                print(f"Ошибка 502 на странице {page}. Пропускаем страницу.")
                 time.sleep(1)
                 continue
             elif http_err.response.status_code == 403:
                 print(f"Доступ запрещен: {http_err}")
+                break
             else:
                 print(f"HTTP ошибка: {http_err}")
                 break
-        except Exception as err:
-            print(f"Ошибка: {err}")
+        except ConnectionError as conn_err:
+            print(f"Ошибка соединения: {conn_err}. Повтор через 1 секунду.")
+            time.sleep(1)
+            continue
+        except TimeoutError as timeout_err:
+            print(f"Ошибка тайм-аута: {timeout_err}. Повтор через 1 секунду.")
+            time.sleep(1)
+            continue
+        try:
+            page_payload = response.json()
+        except ValueError as json_err:
+            print(f"Ошибка парсинга JSON: {json_err}. Пропускаем страницу.")
+            continue
+
+        print(f"Обработка страницы {page} из {page_payload['pages'] - 1}")
+        yield page_payload
+
+        if page >= page_payload['pages'] - 1:
             break
+        time.sleep(1)
 
 
 def get_hh_vacancy_salary_statictics(profession,
