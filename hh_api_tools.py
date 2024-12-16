@@ -56,8 +56,7 @@ def get_hh_vacancy_salary_statictics(profession,
         salaries = [
             salary for page in all_pages
             for vacancy in page.get('items', [])
-            if
-            (salary := predict_rub_salary_hh(vacancy)) is not None
+            if (salary := predict_rub_salary_hh(vacancy))
         ]
         average_salary = int(statistics.mean(salaries)) if salaries else 0
 
@@ -71,10 +70,10 @@ def get_hh_vacancy_salary_statictics(profession,
 
 
 def predict_rub_salary_hh(vacancy):
-    if vacancy is None:
+    if not vacancy:
         return None
     salary = vacancy.get('salary')
-    if salary is None or salary.get('currency') != 'RUR':
+    if not salary or salary.get('currency') != 'RUR':
         return None
 
     return int(predict_salary(salary.get('from'), salary.get('to')))

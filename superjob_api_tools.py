@@ -76,8 +76,7 @@ def get_superjob_salary_statictics(profession,
         salaries = [
             salary for page in all_pages
             for vacancy in page.get('objects', [])
-            if
-            (salary := predict_rub_salary_sj(vacancy)) is not None
+            if (salary := predict_rub_salary_sj(vacancy))
         ]
         average_salary = int(statistics.mean(salaries)) if salaries else 0
 
