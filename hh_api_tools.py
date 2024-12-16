@@ -63,7 +63,7 @@ def get_hh_vacancy_salary_statictics(profession,
                                professional_role=professional_role,
                                area=area, date_from=date_from))
 
-        vacancies_found = sum(page.get('found', 0) for page in all_pages)
+        vacancies_found = all_pages[0].get('found', 0) if all_pages else 0
         salaries = [
             salary for page in all_pages
             for vacancy in page.get('items', [])

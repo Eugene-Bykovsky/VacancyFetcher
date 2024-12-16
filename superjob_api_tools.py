@@ -84,8 +84,7 @@ def get_superjob_salary_statictics(profession,
                                      catalogues=catalogues,
                                      date_published=date_published))
 
-        vacancies_found = sum(len(page.get('objects', 0)) for page in
-                              all_pages)
+        vacancies_found = all_pages[0].get('total', 0) if all_pages else 0
 
         salaries = [
             salary for page in all_pages
