@@ -11,12 +11,12 @@ def print_salary_statistics_table(stats):
          'Средняя зарплата']
     ]
 
-    for keyword, data in stats.items():
+    for language, stats in stats.items():
         table_data.append([
-            keyword,
-            data['vacancies_found'],
-            data['vacancies_processed'],
-            data['average_salary']
+            language,
+            stats['vacancies_found'],
+            stats['vacancies_processed'],
+            stats['average_salary']
         ])
 
     table = AsciiTable(table_data)
